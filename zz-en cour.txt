@@ -1,0 +1,2 @@
+inscription génère automatiquement le token et connecte
+charger les infos utilisateurs
