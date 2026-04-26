@@ -1,2 +1,4 @@
-inscription génère automatiquement le token et connecte
-charger les infos utilisateurs
+- gérer les accesoirs
+- gérer les projecteurs
+- gérer les utilisateurs
+- gérer les emprunts
