@@ -6,8 +6,8 @@ import {
   HiOutlineCalendar,
 } from "react-icons/hi2";
 import { LuProjector } from "react-icons/lu";
-import { UserAvatar } from "../home/components/UserAvatar";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/use-user";
+import { HeaderDashboard } from "../components/HeaderDashboard";
 
 interface EmpruntActif {
   id: number;
@@ -44,24 +44,12 @@ const DashboardLoaner = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <LuProjector className="w-8 h-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-800">
-              Mon espace emprunt – IUC
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600 hidden sm:inline capitalize">
-              {user?.role === "teacher" && "Enseignant"}
-              {user?.role === "student_delegate" && "Délégué élève"}
-            </span>
-            <UserAvatar />
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-gray-200 via-gray-50 to-gray-200">
+      <HeaderDashboard
+        icon={<LuProjector className="w-8 h-8 text-blue-600" />}
+        title="Mon espace emprunt – IUC"
+        role={user?.role}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -101,7 +89,9 @@ const DashboardLoaner = () => {
                             : "bg-blue-100 text-blue-800"
                         }`}
                       >
-                        {emprunt.statut === "en_retard" ? "En retard" : "En cours"}
+                        {emprunt.statut === "en_retard"
+                          ? "En retard"
+                          : "En cours"}
                       </span>
                     </div>
                   </div>
@@ -118,7 +108,9 @@ const DashboardLoaner = () => {
                 Demandes en attente
               </h2>
               {demandesEnAttente.length === 0 ? (
-                <p className="text-gray-500 text-sm">Aucune demande en attente.</p>
+                <p className="text-gray-500 text-sm">
+                  Aucune demande en attente.
+                </p>
               ) : (
                 <ul className="divide-y divide-gray-100">
                   {demandesEnAttente.map((demande) => (
@@ -146,7 +138,8 @@ const DashboardLoaner = () => {
                 Rappel
               </h3>
               <p className="text-sm text-amber-700 mt-1">
-                Emprunt max 48h. Retard = pénalité. Restitution au service technique.
+                Emprunt max 48h. Retard = pénalité. Restitution au service
+                technique.
               </p>
             </div>
           </div>

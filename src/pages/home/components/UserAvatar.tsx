@@ -10,7 +10,7 @@ import {
   AvatarImage,
 } from "../../../components/ui/avatar";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../../../hooks/useUser";
+import { useUser } from "../../../hooks/use-user";
 import { useAuth } from "../../../hooks/use-auth";
 
 export const UserAvatar = () => {
@@ -27,7 +27,10 @@ export const UserAvatar = () => {
 
   if (!user) {
     return (
-      <Button onClick={() => navigate("/login")} className="w-[150px] cursor-pointer border border-gray-200 bg-white text-gray-500">
+      <Button
+        onClick={() => navigate("/login")}
+        className="w-[150px] cursor-pointer border border-gray-200 bg-white text-gray-500"
+      >
         Se connecter
       </Button>
     );

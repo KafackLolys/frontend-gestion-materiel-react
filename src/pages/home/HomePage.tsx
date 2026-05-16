@@ -12,20 +12,26 @@ import {
   HiOutlineClock,           // Historique (feature)
   HiOutlineBellAlert,       // Alertes (feature)
 } from "react-icons/hi2";
+import { PiIdentificationBadgeThin } from "react-icons/pi";
+import { FaBook } from "react-icons/fa";
+
+
 import { HeaderHome } from "./components/HeaderHome";
+import { useUser } from "@/hooks/use-user";
 
 // Composants Shadcn/ui
 
 
 const HomePage = () => {
+  const { data: user } = useUser();
   const navigate = useNavigate();
 
   // Étapes du processus d'emprunt avec leurs icônes respectives
   const etapes = [
     {
-      titre: "Créer un compte",
-      description: "Inscrivez-vous ou connectez-vous à votre espace personnel.",
-      icone: HiOutlineUserPlus,
+      titre: "Se connecter",
+      description: "Connectez-vous à votre espace personnel.",
+      icone: PiIdentificationBadgeThin,
     },
     {
       titre: "Consulter la liste",
@@ -56,10 +62,10 @@ const HomePage = () => {
 
   // Badges / fonctionnalités (style moderne)
   const fonctionnalites = [
-    { nom: "Dashboard", icone: HiOutlineRectangleGroup },
-    { nom: "Parc projecteurs", icone: HiOutlineComputerDesktop },
-    { nom: "Historique", icone: HiOutlineClock },
-    { nom: "Alertes", icone: HiOutlineBellAlert },
+    { nom: "Dashboard", icone: HiOutlineRectangleGroup, path: "/dashboard" },
+    { nom: "Parc projecteurs", icone: HiOutlineComputerDesktop, path: "/dashboard/admin/projectors" },
+    { nom: "Historique", icone: HiOutlineClock, path: "/dashboard/admin/borrowings" },
+    { nom: "Notifications", icone: HiOutlineBellAlert, path: "/dashboard/admin/reservations" },
   ];
 
   return (
@@ -76,9 +82,10 @@ const HomePage = () => {
 
         {/* Badges fonctionnalités */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {fonctionnalites.map((item, idx) => (
+          {user && fonctionnalites.map((item, idx) => (
             <button
               key={idx}
+              onClick={() => navigate(item.path)}
               className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm border border-gray-200 rounded-full text-sm font-medium text-gray-700 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
             >
               <item.icone className="w-4 h-4" />
@@ -90,7 +97,7 @@ const HomePage = () => {
         {/* Titre de la section "Mode d'emploi" */}
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            📘 Comment emprunter un projecteur ?
+            <FaBook className="text-blue-600 size-5" /> Comment emprunter un projecteur ?
           </h2>
           <p className="text-gray-500 mt-4">Suivez ces étapes simples en quelques minutes</p>
         </div>
@@ -119,12 +126,6 @@ const HomePage = () => {
           ))}
         </div>
 
-        {/* Rappel durée max et pénalités */}
-        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-2 sm:p-4 mb-8">
-          <p className="text-amber-700 text-sm flex items-center gap-2">
-            ⏱️ <span className="font-semibold">Durée max d’emprunt : 48h</span> — Tout retard entraîne une pénalité (---la sanction...).
-          </p>
-        </div>
 
         {/* Boutons d'action */}
         <div className="flex flex-col sm:flex-row justify-center gap-4">

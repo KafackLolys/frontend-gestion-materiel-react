@@ -1,14 +1,14 @@
 // src/home/components/AvatarUploader.tsx
-import { useState, useRef, } from 'react';
-import { HiOutlineCamera, HiOutlineUserCircle } from 'react-icons/hi2';
-import { uploadAvatar } from '../../../services/user-service';
-import { useUser } from '../../../hooks/useUser';
+import { useState, useRef } from "react";
+import { HiOutlineCamera, HiOutlineUserCircle } from "react-icons/hi2";
+import { uploadAvatar } from "../../../services/user-service";
+import { useUser } from "../../../hooks/use-user";
 
 interface AvatarUploaderProps {
   size?: string; // classes Tailwind (ex: 'w-24 h-24')
 }
 
-export const AvatarUploader = ({ size = 'w-24 h-24' }: AvatarUploaderProps) => {
+export const AvatarUploader = ({ size = "w-24 h-24" }: AvatarUploaderProps) => {
   const { data: user, refetch } = useUser();
   const [preview, setPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);

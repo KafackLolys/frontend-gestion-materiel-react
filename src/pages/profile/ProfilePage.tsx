@@ -9,7 +9,7 @@ import {
 } from "react-icons/hi2";
 import { IoMailOutline } from "react-icons/io5";
 import { updateProfile } from "../../services/user-service";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/use-user";
 import { AvatarUploader } from "./components/AvatarUploader";
 
 interface ProfileFormValues {

@@ -11,9 +11,12 @@ import {
   HiOutlineCpuChip,
 } from "react-icons/hi2";
 import { LuProjector } from "react-icons/lu";
-import { UserAvatar } from "../home/components/UserAvatar";
 import { GiExplosiveMaterials } from "react-icons/gi";
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/use-user";
+import { HeaderDashboard } from "../components/HeaderDashboard";
+import { MdGroupAdd } from "react-icons/md";
+import { FaUserCog } from "react-icons/fa";
+
 
 // Types simplifiés
 interface EmpruntRecent {
@@ -26,7 +29,7 @@ interface EmpruntRecent {
 type ColorKey = "green" | "blue" | "red" | "purple";
 
 const DashboardManager = () => {
-    const { data: user } = useUser();
+  const { data: user } = useUser();
   const navigate = useNavigate();
   const [stats] = useState({
     totalProjecteurs: 24,
@@ -67,27 +70,12 @@ const DashboardManager = () => {
   ]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      {/* Header avec navigation */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <HiOutlineComputerDesktop className="w-8 h-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-800">
-              Dashboard IUC Projecteur
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600 hidden sm:inline capitalize">
-              {user?.role === "admin" && "Administrateur"}
-              {user?.role === "manager" && "Gérant"}
-              {user?.role === "teacher" && "Enseignant"}
-              {user?.role === "student_delegate" && "élève"}
-            </span>
-            <UserAvatar />
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-gray-200 via-gray-50 to-gray-200">
+      <HeaderDashboard
+        icon={<HiOutlineComputerDesktop className="w-8 h-8 text-blue-600" />}
+        title="Dashboard IUC Projecteur"
+        role={user?.role}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Cartes de statistiques */}
@@ -193,18 +181,32 @@ const DashboardManager = () => {
               </h2>
               <div className="space-y-3">
                 <button
-                  onClick={() => navigate("/projector")}
+                  onClick={() => navigate("/dashboard/manager/projectors")}
                   className="flex items-center gap-3 w-full cursor-pointer py-2.5 px-4 rounded-xl bg-blue-50 text-black hover:bg-blue-100 transition text-sm font-medium"
                 >
                   <LuProjector className="w-5 h-5" />
                   Projecteurs
                 </button>
                 <button
-                  onClick={() => navigate("/accessory")}
+                  onClick={() => navigate("/dashboard/manager/accessories")}
                   className="flex items-center gap-3 w-full cursor-pointer py-2.5 px-4 rounded-xl bg-blue-50 text-black hover:bg-blue-100 transition text-sm font-medium"
                 >
                   <HiOutlineCpuChip className="w-5 h-5" />
                   Accessoires
+                </button>
+              </div>
+              <div className="w-full h-px bg-gray-200 my-5"></div>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <MdGroupAdd className="w-5 h-5 text-blue-500" />
+                Gérer les utilisateurs
+              </h2>
+              <div className="space-y-3">
+                <button
+                  onClick={() => navigate("/dashboard/manager/users")}
+                  className="flex items-center gap-3 w-full cursor-pointer py-2.5 px-4 rounded-xl bg-blue-50 text-black hover:bg-blue-100 transition text-sm font-medium"
+                >
+                  <FaUserCog className="w-5 h-5" />
+                  Liste des utilisateurs
                 </button>
               </div>
             </div>

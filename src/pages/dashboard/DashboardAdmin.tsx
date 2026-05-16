@@ -1,46 +1,43 @@
 // src/pages/DashboardAdmin.tsx
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   HiOutlineUsers,
   HiOutlineCpuChip,
   HiOutlineChartBar,
-  HiOutlinePlusCircle,
 } from "react-icons/hi2";
 import { LuProjector } from "react-icons/lu";
-import { UserAvatar } from "../home/components/UserAvatar";
-import { useUser } from "../../hooks/useUser";
-
+import { useUser } from "../../hooks/use-user";
+import { useStats } from "../../hooks/use-stats";
+import { HeaderDashboard } from "../components/HeaderDashboard";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const DashboardAdmin = () => {
   const navigate = useNavigate();
-  useUser();
+  const { data: user } = useUser();
+  const { data: statsData } = useStats();
 
-  // Stats simulées
+  const [selectedStat, setSelectedStat] = useState<"projectors" | "loans" | null>(null);
+
   const stats = {
-    totalUsers: 48,
-    totalProjecteurs: 24,
-    totalAccessoires: 37,
-    empruntsActifs: 12,
+    totalUsers: statsData?.data.users.total || 0,
+    totalProjecteurs: statsData?.data.projectors.total || 0,
+    totalAccessoires: statsData?.data.accessories?.total || 0,
+    empruntsActifs: (statsData?.data.loans.by_status.pending || 0) + (statsData?.data.loans.by_status.in_progress || 0),
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <HiOutlineUsers className="w-8 h-8 text-purple-600" />
-            <h1 className="text-2xl font-bold text-gray-800">
-              Administration IUC
-            </h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600 hidden sm:inline capitalize">
-              Administrateur
-            </span>
-            <UserAvatar />
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-gray-200 via-gray-50 to-gray-200">
+      <HeaderDashboard
+        icon={<HiOutlineUsers className="w-8 h-8 text-purple-600" />}
+        title="Administration IUC"
+        role={user?.role}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Cartes de stats */}
@@ -56,6 +53,7 @@ const DashboardAdmin = () => {
             value={stats.totalProjecteurs}
             icon={<LuProjector className="w-6 h-6" />}
             color="blue"
+            onClick={() => setSelectedStat("projectors")}
           />
           <StatAdminCard
             title="Accessoires"
@@ -68,6 +66,7 @@ const DashboardAdmin = () => {
             value={stats.empruntsActifs}
             icon={<HiOutlineChartBar className="w-6 h-6" />}
             color="orange"
+            onClick={() => setSelectedStat("loans")}
           />
         </div>
 
@@ -77,36 +76,29 @@ const DashboardAdmin = () => {
             title="Gestion des utilisateurs"
             description="Ajouter, modifier, supprimer des comptes utilisateurs."
             buttonText="Gérer les utilisateurs"
-            onClick={() => navigate("/admin/users")}
+            onClick={() => navigate("/dashboard/admin/users")}
             icon={<HiOutlineUsers className="w-8 h-8 text-purple-600" />}
           />
           <AdminCard
             title="Gestion des projecteurs"
             description="Ajouter, modifier, suivre l’état des projecteurs."
             buttonText="Gérer les projecteurs"
-            onClick={() => navigate("/admin/projectors")}
+            onClick={() => navigate("/dashboard/admin/projectors")}
             icon={<LuProjector className="w-8 h-8 text-blue-600" />}
           />
           <AdminCard
             title="Gestion des accessoires"
             description="Gérer les catalogues d’accessoires (câbles, télécommandes...)."
             buttonText="Gérer les accessoires"
-            onClick={() => navigate("/admin/accessories")}
+            onClick={() => navigate("/dashboard/admin/accessories")}
             icon={<HiOutlineCpuChip className="w-8 h-8 text-green-600" />}
           />
           <AdminCard
             title="Rapports d’emprunts"
             descriptio="Consulter l’historique et les statistiques d’emprunt."
             buttonText="Voir les rapports"
-            onClick={() => navigate("/admin/reports")}
+            onClick={() => navigate("/dashboard/admin/reports")}
             icon={<HiOutlineChartBar className="w-8 h-8 text-orange-600" />}
-          />
-          <AdminCard
-            title="Ajout rapide"
-            description=    "Ajouter un projecteur ou un accessoire en une étape."
-            buttonText="Ajouter"
-            onClick={() => navigate("/admin/quick-add")}
-            icon={<HiOutlinePlusCircle className="w-8 h-8 text-emerald-600" />}
           />
         </div>
 
@@ -114,12 +106,61 @@ const DashboardAdmin = () => {
           © 2025 IUC Projecteur – Administration
         </footer>
       </main>
+
+      {/* Modal pour les sous-statistiques */}
+      <Dialog open={selectedStat !== null} onOpenChange={(open) => !open && setSelectedStat(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              Détails des {selectedStat === "projectors" ? "projecteurs" : "emprunts"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            {selectedStat === "projectors" && statsData?.data.projectors.by_status && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 bg-green-50 text-green-700 rounded-xl border border-green-100">
+                  <p className="text-sm font-medium">Disponibles</p>
+                  <p className="text-2xl font-bold">{statsData.data.projectors.by_status.disponible}</p>
+                </div>
+                <div className="p-4 bg-blue-50 text-blue-700 rounded-xl border border-blue-100">
+                  <p className="text-sm font-medium">Empruntés</p>
+                  <p className="text-2xl font-bold">{statsData.data.projectors.by_status.emprunte}</p>
+                </div>
+                <div className="p-4 bg-yellow-50 text-yellow-700 rounded-xl border border-yellow-100">
+                  <p className="text-sm font-medium">En maintenance</p>
+                  <p className="text-2xl font-bold">{statsData.data.projectors.by_status.en_maintenance}</p>
+                </div>
+                <div className="p-4 bg-red-50 text-red-700 rounded-xl border border-red-100">
+                  <p className="text-sm font-medium">Hors service</p>
+                  <p className="text-2xl font-bold">{statsData.data.projectors.by_status.hors_service}</p>
+                </div>
+              </div>
+            )}
+            {selectedStat === "loans" && statsData?.data.loans.by_status && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="p-4 bg-yellow-50 text-yellow-700 rounded-xl border border-yellow-100">
+                  <p className="text-sm font-medium">En attente</p>
+                  <p className="text-2xl font-bold">{statsData.data.loans.by_status.pending}</p>
+                </div>
+                <div className="p-4 bg-blue-50 text-blue-700 rounded-xl border border-blue-100">
+                  <p className="text-sm font-medium">En cours</p>
+                  <p className="text-2xl font-bold">{statsData.data.loans.by_status.in_progress}</p>
+                </div>
+                <div className="p-4 bg-green-50 text-green-700 rounded-xl border border-green-100">
+                  <p className="text-sm font-medium">Terminés</p>
+                  <p className="text-2xl font-bold">{statsData.data.loans.by_status.completed}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
 // Sous-composants
-const StatAdminCard = ({ title, value, icon, color }: any) => {
+const StatAdminCard = ({ title, value, icon, color, onClick }: any) => {
   const colorMap: Record<string, string> = {
     purple: "bg-purple-50 text-purple-700 border-purple-100",
     blue: "bg-blue-50 text-blue-700 border-blue-100",
@@ -127,7 +168,10 @@ const StatAdminCard = ({ title, value, icon, color }: any) => {
     orange: "bg-orange-50 text-orange-700 border-orange-100",
   };
   return (
-    <div className={`rounded-2xl border p-5 shadow-sm ${colorMap[color]}`}>
+    <div 
+      className={`rounded-2xl border p-5 shadow-sm transition-all ${colorMap[color]} ${onClick ? 'cursor-pointer hover:shadow-md hover:scale-[1.02]' : ''}`}
+      onClick={onClick}
+    >
       <div className="flex justify-between items-start">
         <div>
           <p className="text-sm font-medium opacity-80">{title}</p>

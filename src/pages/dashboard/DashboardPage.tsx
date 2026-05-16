@@ -1,5 +1,5 @@
 // src/pages/DashboardPage.tsx
-import { useUser } from "../../hooks/useUser";
+import { useUser } from "../../hooks/use-user";
 import DashboardManager from "./DashboardManager";
 import DashboardAdmin from "./DashboardAdmin";
 import DashboardLoaner from "./DashboardLoaner";
