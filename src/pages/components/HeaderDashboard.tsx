@@ -1,4 +1,5 @@
 import { UserAvatar } from "../home/components/UserAvatar";
+import { NotificationBell } from "./NotificationBell";
 
 type HeaderProps = {
   title: string;
@@ -25,7 +26,10 @@ export const HeaderDashboard = ({
             {role === "teacher" && "Enseignant"}
             {role === "student_delegate" && "élève"}
           </span>
-          <UserAvatar />
+          <div className="flex items-center gap-3 md:gap-5">
+            <NotificationBell />
+            <UserAvatar />
+          </div>
         </div>
       </div>
     </header>

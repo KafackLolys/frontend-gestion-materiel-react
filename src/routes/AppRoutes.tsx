@@ -8,6 +8,8 @@ import SettingsPage from "../pages/setting/SettingsPage";
 import UsersPage from "@/pages/dashboard/user/UsersPage";
 import ProjectorsPage from "@/pages/dashboard/projector/ProjectorsPage";
 import AccessoriesPage from "@/pages/dashboard/accessory/AccessoriesPage";
+import LoanRequestPage from "@/pages/loans/LoanRequestPage";
+import LoanDetailPage from "@/pages/dashboard/loan/LoanDetailPage";
 
 const AppRoutes = () => {
   return (
@@ -27,9 +29,12 @@ const AppRoutes = () => {
       <Route path="/dashboard/manager/users" element={<UsersPage />} />
       <Route path="/dashboard/manager/projectors" element={<ProjectorsPage />} />
       <Route path="/dashboard/manager/accessories" element={<AccessoriesPage />} />
+      <Route path="/dashboard/manager/loans/:id" element={<LoanDetailPage />} />
       {/* Profile */}
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/settings" element={<SettingsPage />} />
+      {/* Dashbord Student */}
+      <Route path="/dashboard/student/loan" element={<LoanRequestPage />} />
     </Routes>
   );
 };

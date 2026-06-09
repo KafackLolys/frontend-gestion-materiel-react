@@ -1,4 +1,4 @@
-// src/pages/DashboardPage.tsx
+// src/pages/dashboard/DashboardManager.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -6,68 +6,105 @@ import {
   HiOutlineCalendar,
   HiOutlineClock,
   HiOutlineExclamationTriangle,
-  HiOutlineArrowPath,
   HiOutlineChartBar,
   HiOutlineCpuChip,
+  HiOutlineMagnifyingGlass,
 } from "react-icons/hi2";
 import { LuProjector } from "react-icons/lu";
 import { GiExplosiveMaterials } from "react-icons/gi";
 import { useUser } from "../../hooks/use-user";
+import { useAllLoans } from "../loans/hooks/useLoans";
 import { HeaderDashboard } from "../components/HeaderDashboard";
 import { MdGroupAdd } from "react-icons/md";
 import { FaUserCog } from "react-icons/fa";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import debounce from "lodash.debounce";
+import { useCallback } from "react";
+import { HiOutlineAdjustments } from "react-icons/hi";
 
-
-// Types simplifiés
-interface EmpruntRecent {
-  id: number;
-  projecteur: string;
-  emprunteur: string;
-  dateRetourPrevue: string;
-  statut: "en_cours" | "en_retard" | "a_venir";
-}
 type ColorKey = "green" | "blue" | "red" | "purple";
+type LoanStatus = "pending" | "in_progress" | "completed";
 
 const DashboardManager = () => {
   const { data: user } = useUser();
   const navigate = useNavigate();
-  const [stats] = useState({
-    totalProjecteurs: 24,
-    disponibles: 12,
-    empruntsEnCours: 8,
-    retards: 2,
+
+  // États pour les filtres
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<LoanStatus | "all">("all");
+  const [page, setPage] = useState(1);
+
+  // Debounce pour la recherche
+  const debouncedSetSearch = useCallback(
+    debounce((value: string) => setSearch(value), 500),
+    [],
+  );
+
+  // Récupération des emprunts
+  const { loans, isLoading, meta, refetch } = useAllLoans({
+    page,
+    per_page: 10,
+    search: search || undefined,
+    status: statusFilter !== "all" ? statusFilter : undefined,
+    sort_by: "loan_date",
+    order: "desc",
   });
 
-  const [empruntsRecents] = useState<EmpruntRecent[]>([
-    {
-      id: 1,
-      projecteur: "Epson EB‑695Wi",
-      emprunteur: "Jean Dupont",
-      dateRetourPrevue: "2025-04-27",
-      statut: "en_cours",
-    },
-    {
-      id: 2,
-      projecteur: "BenQ TH671ST",
-      emprunteur: "Marie Curie",
-      dateRetourPrevue: "2025-04-25",
-      statut: "en_retard",
-    },
-    {
-      id: 3,
-      projecteur: "Optoma GT1080HDR",
-      emprunteur: "Pierre Martin",
-      dateRetourPrevue: "2025-04-28",
-      statut: "a_venir",
-    },
-    {
-      id: 4,
-      projecteur: "ViewSonic PX701HD",
-      emprunteur: "Sophie Dubois",
-      dateRetourPrevue: "2025-04-26",
-      statut: "en_cours",
-    },
-  ]);
+  // Statistiques calculées à partir des données réelles
+  const stats = {
+    totalProjecteurs: 24, // À récupérer depuis une API dédiée
+    disponibles: 12, // À récupérer depuis une API dédiée
+    empruntsEnCours: loans.filter((l) => l.status === "in_progress").length,
+    retards: loans.filter((l) => {
+      const returnDate = new Date(l.return_date || "");
+      return l.status === "in_progress" && returnDate < new Date();
+    }).length,
+  };
+
+  // Formater la date
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "short",
+    });
+  };
+
+  // Obtenir le statut en français
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "En attente";
+      case "in_progress":
+        return "En cours";
+      case "completed":
+        return "Terminé";
+      default:
+        return status;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "in_progress":
+        return "bg-blue-100 text-blue-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-200 via-gray-50 to-gray-200">
@@ -107,9 +144,45 @@ const DashboardManager = () => {
           />
         </div>
 
-        {/* Deux colonnes : liste des emprunts récents + actions rapides */}
+        {/* Filtres et recherche */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-8">
+          <div className="flex flex-wrap gap-4 items-center justify-between">
+            <div className="flex flex-wrap gap-3 items-center">
+              <div className="relative w-64">
+                <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Rechercher par nom, classe, salle..."
+                  className="pl-10"
+                  onChange={(e) => debouncedSetSearch(e.target.value)}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <HiOutlineAdjustments className="text-gray-400" />
+                <Select
+                  value={statusFilter}
+                  onValueChange={(value: LoanStatus | "all") =>
+                    setStatusFilter(value)
+                  }
+                >
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Tous les statuts" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous</SelectItem>
+                    <SelectItem value="pending">En attente</SelectItem>
+                    <SelectItem value="in_progress">En cours</SelectItem>
+                    <SelectItem value="completed">Terminé</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tableau des emprunts */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Tableau des emprunts récents */}
+          {/* Liste des emprunts */}
           <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
               <HiOutlineClock className="w-5 h-5 text-blue-500" />
@@ -119,96 +192,128 @@ const DashboardManager = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead>
                   <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <th className="pb-3">Projecteur</th>
                     <th className="pb-3">Emprunteur</th>
-                    <th className="pb-3">Retour prévu</th>
+                    <th className="pb-3">Projecteur</th>
+                    <th className="pb-3">Date</th>
                     <th className="pb-3">Statut</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {empruntsRecents.map((emprunt) => (
+                  {isLoading && (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="py-8 text-center text-gray-500"
+                      >
+                        Chargement ...
+                      </td>
+                    </tr>
+                  )}
+                  {loans.map((loan) => (
                     <tr
-                      key={emprunt.id}
-                      className="hover:bg-gray-50 transition"
+                      key={loan.id}
+                      className="hover:bg-gray-50 transition cursor-pointer"
+                      onClick={() =>
+                        navigate(`/dashboard/manager/loans/${loan.id}`)
+                      }
                     >
                       <td className="py-3 text-sm font-medium text-gray-900">
-                        {emprunt.projecteur}
+                        {loan.user?.first_name} {loan.user?.last_name}
                       </td>
                       <td className="py-3 text-sm text-gray-600">
-                        {emprunt.emprunteur}
+                        {loan.projector?.marque || "-"}
                       </td>
                       <td className="py-3 text-sm text-gray-600">
-                        {emprunt.dateRetourPrevue}
+                        {formatDate(loan.loan_date)}
                       </td>
                       <td className="py-3">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            emprunt.statut === "en_retard"
-                              ? "bg-red-100 text-red-800"
-                              : emprunt.statut === "en_cours"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-green-100 text-green-800"
-                          }`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(loan.status)}`}
                         >
-                          {emprunt.statut === "en_retard"
-                            ? "En retard"
-                            : emprunt.statut === "en_cours"
-                              ? "En cours"
-                              : "À venir"}
+                          {getStatusLabel(loan.status)}
                         </span>
                       </td>
                     </tr>
                   ))}
+                  {(!isLoading && loans.length === 0) && (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="py-8 text-center text-gray-500"
+                      >
+                        Aucun emprunt trouvé
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
-            <button
-              onClick={() => navigate("/emprunts")}
-              className="mt-4 text-sm text-blue-600 hover:underline flex items-center gap-1 cursor-pointer"
-            >
-              Voir tous les emprunts
-              <HiOutlineArrowPath className="w-3 h-3" />
-            </button>
+
+            {/* Pagination */}
+            {meta && meta.last_page > 1 && (
+              <div className="flex justify-center gap-2 mt-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  Précédent
+                </Button>
+                <span className="px-4 py-2 text-sm text-gray-600">
+                  Page {page} sur {meta.last_page}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    setPage((p) => Math.min(meta.last_page, p + 1))
+                  }
+                  disabled={page === meta.last_page}
+                >
+                  Suivant
+                </Button>
+              </div>
+            )}
           </div>
 
-          {/* Panneau d'actions et info */}
+          {/* Panneau d'actions */}
           <div className="space-y-6">
-            {/* Actions rapides */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
               <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <GiExplosiveMaterials className="w-5 h-5 text-blue-500" />
-                Matériels disponibles
+                Gestion du matériel
               </h2>
               <div className="space-y-3">
                 <button
                   onClick={() => navigate("/dashboard/manager/projectors")}
-                  className="flex items-center gap-3 w-full cursor-pointer py-2.5 px-4 rounded-xl bg-blue-50 text-black hover:bg-blue-100 transition text-sm font-medium"
+                  className="flex items-center gap-3 w-full py-2.5 px-4 rounded-xl bg-blue-50 text-black hover:bg-blue-100 transition text-sm font-medium"
                 >
                   <LuProjector className="w-5 h-5" />
                   Projecteurs
                 </button>
                 <button
                   onClick={() => navigate("/dashboard/manager/accessories")}
-                  className="flex items-center gap-3 w-full cursor-pointer py-2.5 px-4 rounded-xl bg-blue-50 text-black hover:bg-blue-100 transition text-sm font-medium"
+                  className="flex items-center gap-3 w-full py-2.5 px-4 rounded-xl bg-blue-50 text-black hover:bg-blue-100 transition text-sm font-medium"
                 >
                   <HiOutlineCpuChip className="w-5 h-5" />
                   Accessoires
                 </button>
               </div>
-              <div className="w-full h-px bg-gray-200 my-5"></div>
+
+              <div className="w-full h-px bg-gray-200 my-5" />
+
               <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
                 <MdGroupAdd className="w-5 h-5 text-blue-500" />
                 Gérer les utilisateurs
               </h2>
-              <div className="space-y-3">
-                <button
-                  onClick={() => navigate("/dashboard/manager/users")}
-                  className="flex items-center gap-3 w-full cursor-pointer py-2.5 px-4 rounded-xl bg-blue-50 text-black hover:bg-blue-100 transition text-sm font-medium"
-                >
-                  <FaUserCog className="w-5 h-5" />
-                  Liste des utilisateurs
-                </button>
-              </div>
+              <button
+                onClick={() => navigate("/dashboard/manager/users")}
+                className="flex items-center gap-3 w-full py-2.5 px-4 rounded-xl bg-blue-50 text-black hover:bg-blue-100 transition text-sm font-medium"
+              >
+                <FaUserCog className="w-5 h-5" />
+                Liste des utilisateurs
+              </button>
             </div>
 
             {/* Info règle emprunt */}
@@ -219,14 +324,13 @@ const DashboardManager = () => {
               </h3>
               <p className="text-sm text-amber-700">
                 Durée max d'emprunt : <strong>48h</strong>. Tout retard entraîne
-                une pénalité de ______________. Pensez à restituer le matériel
-                au service technique.
+                une pénalité. Pensez à restituer le matériel au service
+                technique.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Footer */}
         <footer className="mt-10 text-center text-xs text-gray-400 border-t border-gray-200 pt-6">
           © 2025 IUC Projecteur – Gestion d'emprunt de projecteurs
         </footer>
@@ -235,7 +339,7 @@ const DashboardManager = () => {
   );
 };
 
-// Composant pour une carte statistique
+// Composant StatCard inchangé
 const StatCard = ({
   title,
   value,
@@ -265,7 +369,7 @@ const StatCard = ({
             <p className="text-xs opacity-70 mt-1">sur {total} projecteurs</p>
           )}
         </div>
-        <div className={`p-2 rounded-xl bg-white/50`}>{icon}</div>
+        <div className="p-2 rounded-xl bg-white/50">{icon}</div>
       </div>
     </div>
   );

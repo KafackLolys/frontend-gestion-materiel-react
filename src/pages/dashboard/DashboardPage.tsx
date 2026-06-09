@@ -26,7 +26,6 @@ const DashboardPage = () => {
       return <DashboardAdmin />;
     case "manager":
       return <DashboardManager />;
-    case "teacher":
     case "student_delegate":
       return <DashboardLoaner />;
     default:
