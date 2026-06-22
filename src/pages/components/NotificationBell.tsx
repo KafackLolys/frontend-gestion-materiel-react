@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HiOutlineBell, HiOutlineBellAlert } from 'react-icons/hi2';
 import { useNotifications } from '@/hooks/use-notifications';
+import { useUser } from '@/hooks/use-user';
 import { Button } from '@/components/ui/button';
 import {
     Popover,
@@ -15,15 +16,18 @@ import { fr } from 'date-fns/locale';
 
 export const NotificationBell = () => {
     const navigate = useNavigate();
+    const { data: user } = useUser();
     const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
     const [open, setOpen] = useState(false);
 
     const handleNotificationClick = (notification: any) => {
         markAsRead(notification.id);
-        if (notification.data.loan_id) {
+        if (user?.role === 'student_delegate') {
+            navigate('/dashboard');
+        } else if (notification.data.loan_id) {
             navigate(`/dashboard/manager/loans/${notification.data.loan_id}`);
-            setOpen(false);
         }
+        setOpen(false);
     };
 
     return (

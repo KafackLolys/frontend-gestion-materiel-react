@@ -79,7 +79,7 @@ export const ComboboxAccessory = ({
         sideOffset={5}
         style={{ width: "var(--radix-popover-trigger-width)", maxWidth: "100%" }}
       >
-        <Command className="rounded-lg border shadow-md">
+        <Command className="rounded-lg border shadow-md" shouldFilter={false}>
           <CommandInput 
             placeholder="Rechercher un accessoire..." 
             onValueChange={debouncedSetSearch}
@@ -98,9 +98,9 @@ export const ComboboxAccessory = ({
                 {accessories.map((accessory) => (
                   <CommandItem
                     key={accessory.id}
-                    value={String(accessory.id)}
-                    onSelect={(currentValue) => {
-                      onChange(currentValue === value ? "" : currentValue);
+                    value={`${accessory.name} ${accessory.description || ""}`}
+                    onSelect={() => {
+                      onChange(String(accessory.id));
                       setOpen(false);
                     }}
                   >

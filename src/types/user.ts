@@ -3,7 +3,8 @@ export interface User {
   first_name: string;
   last_name: string;
   email: string;
-  role: string;
+  role: "admin" | "manager" | "student_delegate";
+  class?: string;
   image_profil: string
 }
 

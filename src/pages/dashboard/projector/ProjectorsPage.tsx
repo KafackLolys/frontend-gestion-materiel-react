@@ -39,6 +39,7 @@ import { Input } from "@/components/ui/input";
 import { useUser } from "@/hooks/use-user";
 import { LuProjector } from "react-icons/lu";
 import { ProjectorFormModal } from "./ProjectorFormModalProps";
+import { BACKEND_URL } from "@/services/api";
 
 type SortOrder = "asc" | "desc" | null;
 
@@ -63,7 +64,6 @@ const ProjectorsPage = () => {
   );
   const [sortOrder, setSortOrder] = useState<SortOrder>(null);
   const [page, setPage] = useState(1);
-  const backend = import.meta.env.VITE_BACKEND_URL as string;
   const [resetFormFn, setResetFormFn] = useState<(() => void) | null>(null);
 
   const { data: currentUser } = useUser();
@@ -229,7 +229,7 @@ const ProjectorsPage = () => {
               <HiOutlineMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <Input
                 type="text"
-                placeholder="Rechercher par marque ou état..."
+                placeholder="Rechercher par marque ou description"
                 className="pl-10"
                 onChange={(e) => debouncedSetSearch(e.target.value)}
               />
@@ -338,7 +338,7 @@ const ProjectorsPage = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           {projector.image ? (
                             <img
-                              src={`${backend}${projector.image}`}
+                              src={`${BACKEND_URL}${projector.image}`}
                               alt={projector.marque}
                               className="w-12 h-12 object-cover rounded"
                             />

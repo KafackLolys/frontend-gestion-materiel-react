@@ -38,11 +38,11 @@ import { Input } from "@/components/ui/input";
 import { UserFormModal } from "./UserFormModal";
 
 
-export const roleOptions = [
+const roleOptions = [
+  { value: "student_delegate", label: "Délégué étudiant" },
   { value: "admin", label: "Administrateur" },
   { value: "manager", label: "Gérant" },
   { value: "teacher", label: "Enseignant" },
-  { value: "student_delegate", label: "Délégué étudiant" },
 ];
 
 type SortOrder = "asc" | "desc" | null;
@@ -73,7 +73,7 @@ const UsersPage = () => {
   };
 
   const { users, isLoading, error, meta } = useUsers(queryParams);
-    console.log("meta",meta);
+  console.log("meta", meta);
 
   // Debounce sur la recherche
   const debouncedSetSearch = useCallback(
@@ -176,7 +176,7 @@ const UsersPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <HeaderDashboard
         icon={<HiOutlineUsers className="w-8 h-8 text-blue-600" />}
-        title="Dashboard IUC Projecteur"
+        title="Dashboard Projector Hub"
         role={currentUser?.role}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -285,27 +285,30 @@ const UsersPage = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleOpenModal(user)}
-                            className="cursor-pointer text-blue-600"
-                          >
-                            <HiOutlinePencil className="w-5 h-5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() =>
-                              confirmDelete(
-                                user.id,
-                                `${user.last_name} ${user.first_name}`,
-                              )
-                            }
-                            className="cursor-pointer text-red-600"
-                          >
-                            <HiOutlineTrash className="w-5 h-5" />
-                          </Button>
+                          {(currentUser?.role === "admin" || (currentUser?.role === "manager" && user.role !== "admin")) && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleOpenModal(user)}
+                                className="cursor-pointer text-blue-600"
+                            >
+                              <HiOutlinePencil className="w-5 h-5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() =>
+                                confirmDelete(
+                                  user.id,
+                                  `${user.last_name} ${user.first_name}`,
+                                )
+                              }
+                              className="cursor-pointer text-red-600"
+                            >
+                              <HiOutlineTrash className="w-5 h-5" />
+                            </Button>
+                          </>)}
                         </td>
                       </tr>
                     ))}

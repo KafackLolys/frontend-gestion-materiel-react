@@ -115,7 +115,7 @@ const LoginPage = () => {
             </button>
           </form>
 
-          <p className="text-center text-gray-300 mt-6">
+          {/* <p className="text-center text-gray-300 mt-6">
             Pas encore de compte ?{" "}
             <Link
               to="/register"
@@ -123,11 +123,11 @@ const LoginPage = () => {
             >
               S'inscrire
             </Link>
-          </p>
+          </p> */}
         </div>
 
         <p className="text-center text-xs text-gray-500 mt-8">
-          © {new Date().getFullYear()} IUC Projecteur
+          © {new Date().getFullYear()} Projector Hub
         </p>
       </div>
     </div>

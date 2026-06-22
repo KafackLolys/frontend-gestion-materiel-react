@@ -16,6 +16,11 @@ export const cancelLoan = async (id: number): Promise<{ success: boolean; messag
   return data;
 };
 
+export const rejectLoan = async (id: number): Promise<{ success: boolean; message: string }> => {
+  const { data } = await api.delete(`/loans/${id}/reject`);
+  return data;
+};
+
 export const updateLoan = async (id: number, data: any) => {
   const response = await api.put(`/loans/${id}`, data);
   return response.data;

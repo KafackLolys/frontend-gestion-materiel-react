@@ -15,6 +15,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ''), // Nettoie le chemin
       },
     },
+    host: true, // Permet d'accéder au serveur depuis n'importe quel appareil sur le réseau
   },
   resolve: {
     alias: {

@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { HiOutlineCamera, HiOutlineUserCircle } from "react-icons/hi2";
 import { uploadAvatar } from "../../../services/user-service";
 import { useUser } from "../../../hooks/use-user";
+import { BACKEND_URL } from "@/services/api";
 
 interface AvatarUploaderProps {
   size?: string; // classes Tailwind (ex: 'w-24 h-24')
@@ -16,8 +17,7 @@ export const AvatarUploader = ({ size = "w-24 h-24" }: AvatarUploaderProps) => {
 
   // Utilise l'image stockée dans le backend (user.image_profil)
   const avatarUrl = user?.image_profil || null;
-  const backend = import.meta.env.VITE_BACKEND_URL;
-  const displayImage = preview || `${backend}${avatarUrl}`;
+  const displayImage = preview || `${BACKEND_URL}${avatarUrl}`;
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

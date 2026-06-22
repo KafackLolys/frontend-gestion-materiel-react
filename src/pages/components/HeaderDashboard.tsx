@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { UserAvatar } from "../home/components/UserAvatar";
 import { NotificationBell } from "./NotificationBell";
 
@@ -6,18 +7,24 @@ type HeaderProps = {
   role?: string;
   icon: React.ReactNode;
 };
+
+
 export const HeaderDashboard = ({
   title,
   role,
-  icon: Icon
+  icon: Icon,
 }: HeaderProps) => {
+  const navigate = useNavigate();
+
+
+
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-3">
+        <button onClick={() => navigate("/dashboard")} className="flex items-center gap-3 cursor-pointer">
           {Icon}
-          <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
-        </div>
+          <h1 className="text-base md:text-2xl font-bold text-gray-800">{title}</h1>
+        </button>
 
         <div className="flex items-center gap-4">
           <span className="text-sm text-gray-600 hidden sm:inline capitalize">

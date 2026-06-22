@@ -11,12 +11,19 @@ import { IoMailOutline } from "react-icons/io5";
 import { updateProfile } from "../../services/user-service";
 import { useUser } from "../../hooks/use-user";
 import { AvatarUploader } from "./components/AvatarUploader";
+import { classeOptions } from "../dashboard/user/UserFormModal";
 
 interface ProfileFormValues {
   first_name: string;
   last_name: string;
   email: string;
 }
+const roleOptions = [
+  { value: "student_delegate", label: "Délégué étudiant" },
+  { value: "admin", label: "Administrateur" },
+  { value: "manager", label: "Gérant" },
+  { value: "teacher", label: "Enseignant" },
+];
 
 const ProfilePage = () => {
   const { data: user, isLoading, refetch } = useUser();
@@ -89,6 +96,18 @@ const ProfilePage = () => {
             <div className="bg-white rounded-full p-2 shadow-lg">
               <AvatarUploader size="w-24 h-24" />
             </div>
+          </div>
+
+          {/* Infos rôle et classe */}
+          <div className="px-8 pt-6 flex flex-wrap gap-3">
+            <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+              {roleOptions.find((r) => r.value === user?.role)?.label || user?.role}
+            </span>
+            {user?.role === "student_delegate" && user?.class && (
+              <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                Classe : {classeOptions.find((c) => c.value === user.class)?.label || user.class}
+              </span>
+            )}
           </div>
 
           {/* Formulaire */}

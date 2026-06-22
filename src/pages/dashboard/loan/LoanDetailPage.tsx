@@ -25,10 +25,10 @@ import { LuProjector } from "react-icons/lu";
 import { api } from "@/services/api";
 import { HeaderDashboard } from "@/pages/components/HeaderDashboard";
 import { useUser } from "@/hooks/use-user";
+import { rejectLoan } from "@/pages/loans/actions/loan";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -83,11 +83,13 @@ const getLoanDetail = async (id: string): Promise<LoanDetail> => {
 const updateLoanStatus = async ({
   id,
   status,
+  return_date,
 }: {
   id: number;
   status: string;
+  return_date?: string;
 }) => {
-  const { data } = await api.put(`/loans/${id}`, { status });
+  const { data } = await api.put(`/loans/${id}`, { status, return_date });
   return data;
 };
 
@@ -97,6 +99,7 @@ const LoanDetailPage = () => {
   const queryClient = useQueryClient();
   const { data: currentUser } = useUser();
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [endingState, setEndingState] = useState("");
 
@@ -123,12 +126,30 @@ const LoanDetailPage = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["loan", id] });
       queryClient.invalidateQueries({ queryKey: ["all-loans"] });
+      queryClient.invalidateQueries({ queryKey: ["stats"] });
       toast.success("Statut mis à jour avec succès");
       setIsStatusDialogOpen(false);
     },
     onError: (err: any) => {
       toast.error(
         err.response?.data?.message || "Erreur lors de la mise à jour",
+      );
+    },
+  });
+
+  // Mutation pour refuser la demande
+  const rejectMutation = useMutation({
+    mutationFn: rejectLoan,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["loan", id] });
+      queryClient.invalidateQueries({ queryKey: ["all-loans"] });
+      queryClient.invalidateQueries({ queryKey: ["stats"] });
+      toast.success("Demande refusée avec succès");
+      setIsRejectDialogOpen(false);
+    },
+    onError: (err: any) => {
+      toast.error(
+        err.response?.data?.message || "Erreur lors du refus de la demande",
       );
     },
   });
@@ -194,11 +215,17 @@ const LoanDetailPage = () => {
       toast.error("Veuillez décrire l'état de retour du matériel");
       return;
     }
-    updateStatusMutation.mutate({
+    const payload: any = {
       id: parseInt(id!),
       status: selectedStatus,
-      ...(selectedStatus === "completed" && { ending_state: endingState }),
-    });
+    };
+    if (selectedStatus === "in_progress" && (currentUser?.role === "admin" || currentUser?.role === "manager")) {
+      payload.return_date = new Date().toISOString();
+    }
+    if (selectedStatus === "completed") {
+      payload.ending_state = endingState;
+    }
+    updateStatusMutation.mutate(payload);
   };
 
   if (isLoading) {
@@ -375,7 +402,7 @@ const LoanDetailPage = () => {
                     )}
                     {loan.projector.image && (
                       <img
-                        src={`http://localhost:8000/${loan.projector.image}`}
+                        src={`http://localhost:8000${loan.projector.image}`}
                         alt={loan.projector.marque}
                         className="w-24 h-24 object-cover"
                       />
@@ -483,13 +510,23 @@ const LoanDetailPage = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {isValidatePossible && (
-                    <Button
-                      onClick={() => openStatusDialog("in_progress")}
-                      className="w-full bg-green-600 hover:bg-green-700"
-                    >
-                      <HiOutlineCheckCircle className="w-4 h-4 mr-2" />
-                      Valider la demande
-                    </Button>
+                    <>
+                      <Button
+                        onClick={() => openStatusDialog("in_progress")}
+                        className="w-full bg-green-600 hover:bg-green-700"
+                      >
+                        <HiOutlineCheckCircle className="w-4 h-4 mr-2" />
+                        Valider la demande
+                      </Button>
+                      <Button
+                        onClick={() => setIsRejectDialogOpen(true)}
+                        variant="outline"
+                        className="w-full border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <HiOutlineXCircle className="w-4 h-4 mr-2" />
+                        Refuser la demande
+                      </Button>
+                    </>
                   )}
                   {isReturnPossible && (
                     <Button
@@ -500,14 +537,14 @@ const LoanDetailPage = () => {
                       Confirmer le retour
                     </Button>
                   )}
-                  <Button
+                  {/* <Button
                     variant="outline"
                     onClick={() => window.print()}
                     className="w-full"
                   >
                     <HiOutlinePrinter className="w-4 h-4 mr-2" />
                     Imprimer
-                  </Button>
+                  </Button> */}
                 </CardContent>
               </Card>
             )}
@@ -532,7 +569,7 @@ const LoanDetailPage = () => {
         </div>
       </main>
 
-      {/* Dialog de confirmation */}
+      {/* Dialog de confirmation de statut */}
       <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -577,6 +614,33 @@ const LoanDetailPage = () => {
               }
             >
               {updateStatusMutation.isPending ? "Chargement..." : "Confirmer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de confirmation de rejet */}
+      <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Refuser la demande d'emprunt</DialogTitle>
+            <DialogDescription>
+              Êtes-vous sûr de vouloir refuser cette demande d'emprunt ? Cette action est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsRejectDialogOpen(false)}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={() => rejectMutation.mutate(parseInt(id!))}
+              disabled={rejectMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {rejectMutation.isPending ? "Chargement..." : "Confirmer le refus"}
             </Button>
           </DialogFooter>
         </DialogContent>

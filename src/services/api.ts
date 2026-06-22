@@ -1,8 +1,16 @@
 // src/services/api.ts
 import axios from "axios";
 
+export const BACKEND_URL =
+    import.meta.env.VITE_BACKEND_URL;
+
+export const API_URL =
+    import.meta.env.VITE_API_URL;
+
+
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: API_URL,
 });
 
 // Intercepteur pour token

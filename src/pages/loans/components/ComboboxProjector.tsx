@@ -51,8 +51,7 @@ export const ComboboxProjector = ({
     };
   }, [debouncedSetSearch]);
 
-  // Filtrer uniquement les projecteurs disponibles (si l'API ne le fait pas déjà)
-  // Si votre API accepte un paramètre 'etat', vous pouvez l'ajouter directement
+  // Filtrer uniquement les projecteurs disponibles
   const availableProjectors = projectors?.filter(p => p.etat === "disponible") || [];
 
   const selectedProjector = availableProjectors.find(p => String(p.id) === value);
@@ -76,7 +75,7 @@ export const ComboboxProjector = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput 
             placeholder="Rechercher un projecteur..." 
             onValueChange={debouncedSetSearch}
@@ -95,9 +94,9 @@ export const ComboboxProjector = ({
                 {availableProjectors.map((projector) => (
                   <CommandItem
                     key={projector.id}
-                    value={String(projector.id)}
-                    onSelect={(currentValue) => {
-                      onChange(currentValue === value ? "" : currentValue);
+                    value={`${projector.marque} ${projector.ref || ""}`}
+                    onSelect={() => {
+                      onChange(String(projector.id));
                       setOpen(false);
                     }}
                   >

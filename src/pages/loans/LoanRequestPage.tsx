@@ -42,7 +42,6 @@ const accessorySchema = z.object({
 const formSchema = z.object({
   projector_id: z.string().min(1, "Sélectionner un projecteur"),
   loan_date: z.string().min(1, "La date d'emprunt est requise"),
-  return_date: z.string().optional(),
   classroom: z.string().optional(),
   room: z.string().optional(),
   cni_number: z.string().min(4, "Numéro CNI invalide"),
@@ -57,6 +56,7 @@ type FormValues = z.infer<typeof formSchema>;
 const LoanRequestPage = () => {
   const navigate = useNavigate();
   const { data: currentUser } = useUser();
+  console.log("currentUser", currentUser);
 
   const [accessoriesList, setAccessoriesList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -76,8 +76,7 @@ const LoanRequestPage = () => {
     defaultValues: {
       projector_id: "",
       loan_date: new Date().toISOString().slice(0, 16),
-      return_date: "",
-      classroom: "",
+      classroom: currentUser?.class || "",
       room: "",
       cni_number: "",
       teacher_name: "",
@@ -163,8 +162,8 @@ const LoanRequestPage = () => {
         role={currentUser?.role}
       />
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <Card className="border-0 shadow-xl rounded-3xl overflow-hidden">
-          <CardContent className="p-8">
+        <div className="border-0 shadow-xl rounded-3xl">
+          <div className="p-8">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-slate-800">
                 Nouvelle demande
@@ -212,7 +211,7 @@ const LoanRequestPage = () => {
                   </div>
 
                   {/* CLASSROOM + ROOM */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Classe</label>
                       <InputGroup className="h-[45px]! rounded-sm!">
@@ -289,7 +288,7 @@ const LoanRequestPage = () => {
                     {fields.map((field, index) => (
                       <div
                         key={field.id}
-                        className="flex gap-3 items-center bg-slate-50 p-4 rounded-sm border"
+                        className="flex gap-3 flex-wrap items-center bg-slate-50 p-2 rounded-sm border"
                       >
                         <div className="flex-1">
                           <Controller
@@ -304,25 +303,30 @@ const LoanRequestPage = () => {
                             )}
                           />
                         </div>
-                        <InputGroup className="w-24">
-                          <InputGroupInput
-                            type="number"
-                            min={1}
-                            className="h-10"
-                            {...form.register(`accessories.${index}.quantity`, {
-                              valueAsNumber: true,
-                            })}
-                          />
-                        </InputGroup>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="rounded-xl"
-                          onClick={() => remove(index)}
-                        >
-                          <FiTrash2 />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <InputGroup className="w-20">
+                            <InputGroupInput
+                              type="number"
+                              min={1}
+                              className="h-10"
+                              {...form.register(
+                                `accessories.${index}.quantity`,
+                                {
+                                  valueAsNumber: true,
+                                },
+                              )}
+                            />
+                          </InputGroup>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="rounded-xl"
+                            onClick={() => remove(index)}
+                          >
+                            <FiTrash2 />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -393,8 +397,8 @@ const LoanRequestPage = () => {
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </main>
     </div>
   );

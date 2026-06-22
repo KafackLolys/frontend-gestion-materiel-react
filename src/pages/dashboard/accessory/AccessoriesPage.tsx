@@ -37,6 +37,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/hooks/use-user";
 import { AccessoryFormModal } from "./AccessoryFormModalProps";
+import { BACKEND_URL } from "@/services/api";
 
 type SortOrder = "asc" | "desc" | null;
 
@@ -57,7 +58,6 @@ const AccessoriesPage = () => {
   const [sortColumn, setSortColumn] = useState<AccessorySortColumn | null>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>(null);
   const [page, setPage] = useState(1);
-  const backend = import.meta.env.VITE_BACKEND_URL as string;
   const [resetFormFn, setResetFormFn] = useState<(() => void) | null>(null);
 
   const { data: currentUser } = useUser();
@@ -296,7 +296,7 @@ const AccessoriesPage = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           {accessory.image ? (
                             <img
-                              src={`${backend}${accessory.image}`}
+                              src={`${BACKEND_URL}${accessory.image}`}
                               alt={accessory.name}
                               className="w-12 h-12 object-cover rounded"
                             />

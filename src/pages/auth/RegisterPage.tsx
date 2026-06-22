@@ -158,7 +158,7 @@ const RegisterPage = () => {
         </div>
 
         <p className="text-center text-xs text-gray-500 mt-8">
-          © {new Date().getFullYear()} IUC Projecteur
+          © {new Date().getFullYear()} Projector Hub
         </p>
       </div>
     </div>

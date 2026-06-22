@@ -114,9 +114,7 @@ const DashboardLoaner = () => {
       queryClient.invalidateQueries({ queryKey: ["user-loans"] });
       queryClient.invalidateQueries({ queryKey: ["active-loan"] });
 
-      toast.success(
-        "Information d'emprunt completer avec succès.",
-      );
+      toast.success("Information d'emprunt completer avec succès.");
       setIsReturnModalOpen(false);
     } catch (err: any) {
       const message =
@@ -232,7 +230,7 @@ const DashboardLoaner = () => {
                             className="ml-auto inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-700 hover:bg-green-200 transition"
                           >
                             <HiOutlineCheckCircle className="w-4 h-4" />
-                            Etat de retour
+                            Etat de restitution
                           </button>
                         )}
                       </div>
@@ -352,7 +350,7 @@ const DashboardLoaner = () => {
               {history.length > 0 && (
                 <button
                   className="mt-5 text-sm text-blue-600 hover:text-blue-700 font-medium"
-                  onClick={() => navigate("/historique-emprunts")}
+                  onClick={() => navigate("/student/historique-emprunts")}
                 >
                   Voir tout l’historique →
                 </button>
@@ -375,7 +373,7 @@ const DashboardLoaner = () => {
         </div>
 
         <footer className="mt-10 text-center text-xs text-gray-400 border-t border-gray-200 pt-6">
-          © 2025 IUC Projecteur – Gestion d'emprunt
+          © 2025 Projector Hub – Gestion d'emprunt
         </footer>
       </main>
 

@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { HiOutlineX } from "react-icons/hi";
 import type { Accessory } from "@/types/accessory";
 import { useEffect } from "react";
+import { BACKEND_URL } from "@/services/api";
 
 interface AccessoryFormModalProps {
   open: boolean;
@@ -39,7 +40,6 @@ export const AccessoryFormModal = ({
   imageFile,
   setResetForm,
 }: AccessoryFormModalProps) => {
-  const backend = import.meta.env.VITE_BACKEND_URL as string;
   const {
     register,
     handleSubmit,
@@ -141,7 +141,7 @@ export const AccessoryFormModal = ({
             </div>
             {imagePreview && (
               <img
-                src={!accessory ? imagePreview : `${backend}${imagePreview}`}
+                src={imageFile ? imagePreview : `${BACKEND_URL}${imagePreview}`}
                 alt="Aperçu"
                 className="mt-2 w-24 h-24 object-cover rounded"
               />

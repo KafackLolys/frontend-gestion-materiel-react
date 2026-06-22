@@ -12,6 +12,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../../hooks/use-user";
 import { useAuth } from "../../../hooks/use-auth";
+import { BACKEND_URL } from "@/services/api";
 
 export const UserAvatar = () => {
   const { data: user } = useUser();
@@ -20,8 +21,7 @@ export const UserAvatar = () => {
 
   // Gestion de la déconnexion
   const { logout } = useAuth();
-  const backend = import.meta.env.VITE_BACKEND_URL;
-  const avatarUrl = `${backend}${user?.image_profil}` || undefined;
+  const avatarUrl = `${import.meta.env.VITE_BACKEND_URL}${user?.image_profil}` || undefined;
 
   const isLoggedIn = true; // à remplacer par ton auth réelle
 
@@ -29,7 +29,7 @@ export const UserAvatar = () => {
     return (
       <Button
         onClick={() => navigate("/login")}
-        className="w-[150px] cursor-pointer border border-gray-200 bg-white text-gray-500"
+        className="hidden sm:block w-[150px] cursor-pointer border border-gray-200 bg-white text-gray-500"
       >
         Se connecter
       </Button>

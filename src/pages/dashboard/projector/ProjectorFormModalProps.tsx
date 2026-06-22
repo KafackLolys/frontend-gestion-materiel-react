@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { HiOutlineX } from "react-icons/hi";
 import type { Projector } from "@/types/projector";
 import { useEffect } from "react";
+import { BACKEND_URL } from "@/services/api";
 
 interface ProjectorFormModalProps {
   open: boolean;
@@ -46,7 +47,6 @@ export const ProjectorFormModal = ({
   imageFile,
   setResetForm,
 }: ProjectorFormModalProps) => {
-  const backend = import.meta.env.VITE_BACKEND_URL as string;
   const {
     register,
     handleSubmit,
@@ -177,7 +177,7 @@ export const ProjectorFormModal = ({
             </div>
             {imagePreview && (
               <img
-                src={!projector ? imagePreview : `${backend}${imagePreview}`}
+                src={imageFile ? imagePreview : `${BACKEND_URL}${imagePreview}`}
                 alt="Aperçu"
                 className="mt-2 w-24 h-24 object-cover rounded"
               />

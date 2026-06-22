@@ -5,6 +5,8 @@ import {
   HiOutlineUsers,
   HiOutlineCpuChip,
   HiOutlineChartBar,
+  HiOutlineExclamationTriangle,
+  HiOutlineFlag,
 } from "react-icons/hi2";
 import { LuProjector } from "react-icons/lu";
 import { useUser } from "../../hooks/use-user";
@@ -94,16 +96,23 @@ const DashboardAdmin = () => {
             icon={<HiOutlineCpuChip className="w-8 h-8 text-green-600" />}
           />
           <AdminCard
-            title="Rapports d’emprunts"
-            descriptio="Consulter l’historique et les statistiques d’emprunt."
-            buttonText="Voir les rapports"
-            onClick={() => navigate("/dashboard/admin/reports")}
-            icon={<HiOutlineChartBar className="w-8 h-8 text-orange-600" />}
+            title="Gestion des incidents"
+            description="Signaler et suivre les incidents matériels."
+            buttonText="Gérer les incidents"
+            onClick={() => navigate("/dashboard/admin/incidents")}
+            icon={<HiOutlineFlag className="w-8 h-8 text-orange-600" />}
+          />
+          <AdminCard
+            title="Journal d'activité"
+            description="Consulter l’historique et les statistiques d’emprunt."
+            buttonText="Voir le journal d'activité"
+            onClick={() => navigate("/dashboard/admin/logs")}
+            icon={<HiOutlineExclamationTriangle className="w-8 h-8 text-red-600" />}
           />
         </div>
 
         <footer className="mt-12 text-center text-xs text-gray-400 border-t border-gray-200 pt-6">
-          © 2025 IUC Projecteur – Administration
+          © 2025 Projector Hub – Administration
         </footer>
       </main>
 

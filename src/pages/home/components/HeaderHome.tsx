@@ -1,15 +1,21 @@
 import { useNavigate } from "react-router-dom";
-import { Sheet, SheetContent, SheetTrigger } from "../../../components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "../../../components/ui/sheet";
 import { HiBars3 } from "react-icons/hi2";
 import { UserAvatar } from "./UserAvatar";
 import { Button } from "../../../components/ui/button";
 import { useAuth } from "../../../hooks/use-auth";
+import { useUser } from "@/hooks/use-user";
 
 export const HeaderHome = () => {
   const navigate = useNavigate();
-  
+
   // Gestion de la déconnexion
   const { logout } = useAuth();
+  const { data: user } = useUser();
   return (
     <header className="w-full bg-gray-100 px-4 md:px-8 py-2 flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -50,13 +56,15 @@ export const HeaderHome = () => {
               >
                 Contact
               </Button>
-              <Button
-                variant="ghost"
-                onClick={logout}
-                className="justify-start text-red-600"
-              >
-                Déconnexion
-              </Button>
+              {user && (
+                <Button
+                  variant="ghost"
+                  onClick={logout}
+                  className="justify-start text-red-600"
+                >
+                  Déconnexion
+                </Button>
+              )}
             </nav>
           </SheetContent>
         </Sheet>
@@ -66,10 +74,10 @@ export const HeaderHome = () => {
           <img
             src="/src/assets/images/logo-iuc.png"
             alt="Logo"
-            className="w-[50px] md:w-[70px] h-auto"
+            className="w-[30px] md:w-[70px] h-auto"
           />
-          <h1 className="text-3xl md:text-4xl xl:text-5xl font-bold text-blue-600">
-            IUC Projecteur
+          <h1 className="text-xl md:text-4xl xl:text-5xl font-bold text-blue-600">
+            Projector Hub
           </h1>
         </div>
       </div>
