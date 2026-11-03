@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getNotifications, markAsRead, markAllAsRead, type Notification } from '@/services/notification-service';
+import { getNotifications, markAsRead, markAllAsRead } from '@/services/notification-service';
 import echo from '@/services/echo';
 import { toast } from 'react-hot-toast';
+
+type NotificationBroadcast = {
+    message: string;
+};
 
 export const useNotifications = () => {
     const queryClient = useQueryClient();
@@ -39,15 +43,15 @@ export const useNotifications = () => {
         if (!echo) return;
 
         try {
-            echo.channel('notifications').listen('.new-loan-request', (data) => {
+            echo.channel('notifications').listen('.new-loan-request', (data: NotificationBroadcast) => {
                 toast.success(data.message);
                 refetch();
             });
-            echo.channel('notifications').listen('.loan-approved', (data) => {
+            echo.channel('notifications').listen('.loan-approved', (data: NotificationBroadcast) => {
                 toast.success(data.message);
                 refetch();
             });
-            echo.channel('notifications').listen('.loan-returned', (data) => {
+            echo.channel('notifications').listen('.loan-returned', (data: NotificationBroadcast) => {
                 toast.success(data.message);
                 refetch();
             });
